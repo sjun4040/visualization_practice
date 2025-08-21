@@ -7,27 +7,9 @@ import seaborn
 import plotly.express as px
 
 # ------ 정의 
-month = datetime.datetime.now().month
 img = Image.open('고양이_ai.png')
 df_ice = pd.read_csv('icecream_sales.csv')
 
-# ---- 대시 보드 상단 
-col1, col2 = st.columns(2)  # col1에는 이번 달 매출, col2에는 어떤 종류의 맛이 잘팔리는 지 
-
-with col1:
-    st.metric(
-        f'{month}월 매출 현황',
-        value='10만원',
-        delta='+3'
-    )
-
-with col2:
-    st.metric(
-        f'{month}월의 맛',
-        value='초코',
-        delta='이번 달 초코 맛 선택 수 : {} '
-        
-    )
 
 # --- 분석용 시각화 코드
 # 날짜 타입 변환
@@ -80,7 +62,28 @@ def fig2():
     fig2.update_traces(texttemplate='%{text:,}원', textposition='outside')
     return fig2
 
+# ---- 대시 보드 상단 
+month = datetime.datetime.now().month
+month_sales = df_ice[df_ice['월'] == month]['매출'].sum()
+choco_count = df_ice[(df_ice['월'] == month) & (df_ice['맛'] == '초코')]['개수'].sum()
 
+col1, col2 = st.columns(2)  # col1에는 이번 달 매출, col2에는 어떤 종류의 맛이 잘팔리는 지 
+
+with col1:
+    st.metric(
+        f'{month}월 매출 현황',
+        value='{month_sales}',
+        delta='+3'
+    )
+
+with col2:
+    st.metric(
+        f'{month}월의 맛',
+        value='초코',
+        delta='이번 달 초코 맛 선택 수 : {choco_count} '
+        
+    )
+    
 # --- 함수 chice_icecream
 def choice_icecream():
     tab1, tab2, tab3 = st.tabs(['맛 선택', '컵 사이즈 선택', '배달 여부'])
