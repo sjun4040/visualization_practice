@@ -1,10 +1,17 @@
+# --- 라이브러리 정의
 import streamlit as st
 from PIL import Image
 import datetime
+import pandas as pd
+import seaborn
+import plotly.express as px
 
+# ------ 정의 
 month = datetime.datetime.now().month
-img = Image.open('./data/그림1.png')
+img = Image.open('고양이_ai.png')
+df_ice = pd.read_csv('icecream_sales.csv')
 
+# ---- 대시 보드 상단 
 col1, col2 = st.columns(2)  # col1에는 이번 달 매출, col2에는 어떤 종류의 맛이 잘팔리는 지 
 
 with col1:
@@ -21,7 +28,60 @@ with col2:
         delta='이번 달 초코 맛 선택 수 : {} '
         
     )
-  
+
+# --- 분석용 시각화 코드
+# 날짜 타입 변환
+df_ice['날짜'] = pd.to_datetime(df_ice['날짜'])
+
+# 1. 월별 매출 합계
+df_ice['월'] = df_ice['날짜'].dt.month
+month_sales = df_ice.groupby('월')['매출'].sum().reset_index()
+
+def fig1():
+    fig1 = px.bar(
+        month_sales,
+        x='월',
+        y='매출',
+        title='월별 매출 현황',
+        color='월',
+        text='매출',
+        color_discrete_sequence=px.colors.qualitative.Pastel
+    )
+    fig1.update_layout(
+        plot_bgcolor='#fffbe6',
+        paper_bgcolor='#fffbe6',
+        font_family='Nanum Gothic',
+        title_font_color='#4c1900',
+        title_font_size=22
+    )
+    fig1.update_traces(texttemplate='%{text:,}원', textposition='outside')
+    return fig1
+
+
+# 2. 맛별 매출 순위
+flavor_sales = df_ice.groupby('맛')['매출'].sum().reset_index().sort_values('매출', ascending=False)
+
+def fig2():
+    fig2 = px.bar(
+        flavor_sales,
+        x='맛',
+        y='매출',
+        title='맛별 매출 순위',
+        color='맛',
+        text='매출',
+        color_discrete_sequence=px.colors.qualitative.Pastel
+    )
+    fig2.update_layout(
+        plot_bgcolor='#f7f7f7',
+        font_family='Nanum Gothic',
+        title_font_color='#7e4a13',
+        title_font_size=22
+    )
+    fig2.update_traces(texttemplate='%{text:,}원', textposition='outside')
+    return fig2
+
+
+# --- 함수 chice_icecream
 def choice_icecream():
     tab1, tab2, tab3 = st.tabs(['맛 선택', '컵 사이즈 선택', '배달 여부'])
     
@@ -56,18 +116,30 @@ def choice_icecream():
     if favor_option and size_option and deliver_option:
         st.success(f'선택하신 {size_option}사이즈의 {favor_option}맛을 {deliver_option}하겠습니다 ')
 
+# ---- 함수 make_anal_tab 정의
+# -- 파일명 : icecream_sales.csv 컬럼명 : 날짜,성별,연령대,맛,컵사이즈,개수,매출
 def make_anal_tab():
-    tab1, tab2 = st.tabs(['매출 현황', '아이스크림 관리 창고 온도 현황'])
+    tab1, tab2 = st.tabs(['월별 매출 현황', '맛별 매출 현황'])
     
+    with tab1:
+        st.header('월별 매출 현황 입니다')
+        st.plotly_chart(fig1(), use_container_width=True)
+        
+    with tab2:
+        st.header('맛별 매출 현황 입니다')
+        st.plotly_chart(fig2(), use_container_width=True)
     
+
+# ---사이드바 정의    
 st.sidebar.header('메뉴')
 selected_menu = st.sidebar.selectbox(
     '메뉴 선택', ['메인 페이지','아이스크림 골라보기','매출 현황','설정']
 )
 
+# ---- 사이드바 내용 
 if selected_menu == '메인 페이지':
     st.subheader('*또와요 아이스크림 메인 페이지 입니다.!!*')
-    st.image(img,width=500,caption='파스쿠치 사이트에서 갖고 온 사진으로 이름만 변경하였습니다 해당 이미지는 실습용 목적으로 사용하는 것이며 수익적인 목적을 가지고 사용하지 않습니다' )
+    st.image(img,width=500,caption='ai 퍼블렉시티로 만든 귀여운 고양이 사진입니다. 실습용도이며 수익성의 목적을 띄고 있지 않음을 말씀드립니다. ' )
 
 elif selected_menu == '아이스크림 골라보기':
     st.subheader('🍦*사내 복지 서비스* 🍦사내 아이스크림 배달 선택 메뉴입니다.!!')
@@ -76,7 +148,8 @@ elif selected_menu == '아이스크림 골라보기':
     
 elif selected_menu == '매출 현황':
     st.subheader('*매출 현황 확인 메뉴입니다.!!*')
-    st.write('관리자 메뉴로 매출 현황을 확인할 수 있습니다.!!')
+    st.write('관리자 메뉴로서 매출 현황을 확인할 수 있습니다.!!')
+    make_anal_tab()
 
 else:
     st.subheader('*설정 메뉴입니다*')
