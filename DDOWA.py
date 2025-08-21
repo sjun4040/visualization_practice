@@ -16,6 +16,7 @@ df_ice['날짜'] = pd.to_datetime(df_ice['날짜'])
 
 # 1. 월별 매출 합계
 df_ice['월'] = df_ice['날짜'].dt.month
+month = datetime.datetime.now().month 
 month_sales_df = df_ice.groupby('월')['매출'].sum().reset_index()
 month_sales_df['월_str'] = month_sales_df['월'].astype(str)
 
