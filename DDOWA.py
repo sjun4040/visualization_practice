@@ -72,7 +72,7 @@ col1, col2 = st.columns(2)  # col1에는 이번 달 매출, col2에는 어떤 �
 with col1:
     st.metric(
         f'{month}월 매출 현황',
-        value='{month_sales}',
+        value=(f'{month_sales}'),
         delta='+3'
     )
 
@@ -80,7 +80,7 @@ with col2:
     st.metric(
         f'{month}월의 맛',
         value='초코',
-        delta='이번 달 초코 맛 선택 수 : {choco_count} '
+        delta=(f'이번 달 초코 맛 선택 수 : {choco_count} ')
         
     )
     
