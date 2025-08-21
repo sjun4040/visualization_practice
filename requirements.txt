@@ -2,11 +2,6 @@ streamlit
 pandas
 numpy
 matplotlib
-Image
-datetiem
-Pillow
-
-
-
-
-
+pillow
+seaborn
+plotly
