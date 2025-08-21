@@ -3,7 +3,6 @@ import streamlit as st
 from PIL import Image
 import datetime
 import pandas as pd
-import seaborn
 import plotly.express as px
 
 # ------ 정의 
@@ -18,6 +17,7 @@ df_ice['날짜'] = pd.to_datetime(df_ice['날짜'])
 # 1. 월별 매출 합계
 df_ice['월'] = df_ice['날짜'].dt.month
 month_sales = df_ice.groupby('월')['매출'].sum().reset_index()
+month_sales['월_str'] = month_sales['월'].astype(str)
 
 def fig1():
     fig1 = px.bar(
@@ -25,7 +25,7 @@ def fig1():
         x='월',
         y='매출',
         title='월별 매출 현황',
-        color='월',
+        color='월_str',
         text='매출',
         color_discrete_sequence=px.colors.qualitative.Pastel
     )
@@ -72,8 +72,8 @@ col1, col2 = st.columns(2)  # col1에는 이번 달 매출, col2에는 어떤 �
 with col1:
     st.metric(
         f'{month}월 매출 현황',
-        value=(f'{month_sales}'),
-        delta='+3'
+        value=(f'{month_sales:,}원'),
+        delta='+'
     )
 
 with col2:
